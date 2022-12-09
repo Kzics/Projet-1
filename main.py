@@ -56,6 +56,8 @@ for _ in range(9) :
     jeton = Jeton(15, (1381, 467), "b", "blue")
     jetonsJ1.append(jeton)
 
+    jeton = Jeton(15, (100, 475), "b", "green")
+    jetonsJ2.append(jeton)
 
 grille = plateau.Plateau(1)
 
