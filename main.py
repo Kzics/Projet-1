@@ -53,11 +53,12 @@ jetonsJ1 = list()
 jetonsJ2 = list()
 
 for _ in range(9) :
-    jeton = Jeton(15, (1381, 467), "b", "blue")
-    jetonsJ1.append(jeton)
+    bjeton = Jeton(15, (1381, 467), "b", "blue")
+    jeton = Jeton(15, (451, 467), "g", "green")
 
-    jeton = Jeton(15, (100, 475), "b", "green")
+    jetonsJ1.append(bjeton)
     jetonsJ2.append(jeton)
+
 
 grille = plateau.Plateau(1)
 
@@ -75,19 +76,26 @@ while True :
 
 
     if intersec != 0 :
+        x,y = intersec[1]
 
         if who :
             jeton = jetonsJ1.pop()
-            jeton.deplace(intersec[0])
+            while grille.EstJoué(x,y):
+                print("joué")
+                x,y = intersec[1]
+                
+                print("ok")
+                j1.joue(intersec[1])
+                jeton.deplace(intersec[0])
 
-            j1.joue(intersec[1])
 
         else :
-            
             jeton = jetonsJ2.pop()
-            jeton.deplace(intersec[0])
-
-            j2.joue(intersec[1])
+            while grille.EstJoué(x,y):
+                x,y = intersec [1]
+                
+                j1.joue(intersec[1])
+                jeton.deplace(intersec[0])
 
 
         who = not who

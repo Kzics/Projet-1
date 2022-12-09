@@ -34,24 +34,22 @@ class Plateau :
 
 
     def EstJoué(self, i, j) -> bool :
-        
-        try :
             if self.plateau[i][j] == 0 :
                 return False
-        except Exception as e :
-            pass
-    
-        
-        return True
+            
+            return True
 
     
     def joue(self, i:int, j:int, joueur:str) -> bool :
 
+        print(not self.EstJoué(i,j))
         if not self.EstJoué(i, j) :
+            print("eeee")
             self.plateau[i][j] = joueur
             return True
 
         else :
+            print("zzzz")
             return False
 
 

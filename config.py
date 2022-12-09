@@ -11,6 +11,7 @@ IntersectionsPlateau1 = [
     [(300, 848), (748, 846), (1197, 849)]
 ]
 
+
 CoordMoulinColnnePlateau1 = [
     [(0,0), (3,0), (6,0)],
     [(1,0), (3,1), (5,0)],
@@ -21,3 +22,4 @@ CoordMoulinColnnePlateau1 = [
     [(1,2), (3,4), (5,2)],
     [(0,2), (3,5), (6,2)]
 ]
+
