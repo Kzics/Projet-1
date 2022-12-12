@@ -6,10 +6,10 @@ HEIGHT = 950
 def grille():
     while True:
         try:
-            x = int(input("1, 2 ou 3: "))
+            x = int(input("1, 2, 3 ou 4: "))
             if x < 1:
                 print("Erreur, valeur trop faible réessayer")
-            elif x > 3:
+            elif x > 4:
                 print("Erreur, valeur trop grande réessayer")
             else:
                 break
@@ -46,7 +46,19 @@ elif plateau == 3:
     ligne(1200, 100, 300, 850, epaisseur=3)
     ligne(((1200-300)//2)+300, 100, ((1200-300)//2)+300, 850, epaisseur=3)
     ligne(300, ((850-100)//2)+100, 1200, ((850-100)//2)+100, epaisseur=3)
+elif plateau == 4:
+    rectangle(300, 100, 1200, 850, epaisseur=3, remplissage="#FFE0A9")
+    rectangle(435, 210, 1070, 740, epaisseur=3)
+    rectangle(555, 310, 950, 640, epaisseur=3)
 
+    ligne(((1200-300)//2)+300, 100, ((1200-300)//2)+300, 310, epaisseur=3)
+    ligne(((1200-300)//2)+300, 640, ((1200-300)//2)+300, 850, epaisseur=3)
+
+    ligne(300, ((850-100)//2)+100, 555, ((850-100)//2)+100, epaisseur=3)
+    ligne(950, ((850-100)//2)+100, 1200, ((850-100)//2)+100, epaisseur=3)
+
+    ligne(300, 100, 555, 310, epaisseur=3)
+    ligne(1200, 100, 950, 300, epaisseur=3)
 while True:
     ev = donne_ev()
     tev = type_ev(ev)
