@@ -72,16 +72,16 @@ class Plateau :
 
             if len(self.plateau[ligne]) == 3 :
                 if self.plateau[ligne][0] == self.plateau[ligne][1] == self.plateau[ligne][2] and self.plateau[ligne][0] !=0 :
-                        return [self.plateau[ligne][0], (ligne, 0), (ligne, 1), (ligne, 2)]
+                        return [self.plateau[ligne][0],[ (ligne, 0), (ligne, 1), (ligne, 2)]]
             
             else :
                 if len(self.plateau[ligne]) == 6 :
 
                     if self.plateau[ligne][0] == self.plateau[ligne][1] == self.plateau[ligne][2] and self.plateau[ligne][0] != 0:
-                        return [self.plateau[ligne][0], (ligne, 0), (ligne, 1), (ligne, 2)]
+                        return [self.plateau[ligne][0],[ (ligne, 0), (ligne, 1), (ligne, 2)]]
 
                     if self.plateau[ligne][3] == self.plateau[ligne][4] == self.plateau[ligne][5] and self.plateau[ligne][3] != 0:
-                        return [self.plateau[ligne][3], (ligne, 3), (ligne, 4), (ligne, 5)]
+                        return [self.plateau[ligne][3], [(ligne, 3), (ligne, 4), (ligne, 5)]]
 
         return ["Null"]
         
@@ -114,6 +114,7 @@ class Plateau :
                 
                 if tmp[0] == tmp[1] == tmp[2] and tmp[0] != 0:
                     coords.insert(0, tmp[0])
+                    print(coords)
                     return coords
 
         return ["Null"]
@@ -122,10 +123,12 @@ class Plateau :
         ligne = self._MoulinLigne_()
 
         if ligne[0] != "Null" : 
+            print(ligne[0])
             return ligne
         else :
             colonne = self._MoulinColonne_()
             if colonne[0] != "Null" :
+                print(colonne[0])
                 return colonne
         
         return ["Null"]
