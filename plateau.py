@@ -33,32 +33,38 @@ class Plateau :
         return grille
 
 
-    def EstJoué(self, i, j) -> bool :
-            if self.plateau[i][j] == 0 :
-                return False
-            
+    def EstJouable(self, coord:tuple) -> bool :
+        i,j = coord
+        if self.plateau[i][j] == 0 :
             return True
 
+        return False
+
+    def est_ce_joueur(self, coord:tuple, joueur:str) -> bool :
+        i,j = coord
+        if self.plateau[i][j] == joueur :
+            return True
+        return False
     
-    def joue(self, i:int, j:int, joueur:str) -> bool :
+    def joue(self, i:int, j:int, joueur:str) -> None :
 
-        print(not self.EstJoué(i,j))
-        if not self.EstJoué(i, j) :
-            print("eeee")
-            self.plateau[i][j] = joueur
-            return True
-
-        else :
-            print("zzzz")
-            return False
+        self.plateau[i][j] = joueur
+        return True
 
 
-    def enleve(self, i:int, j:int) -> None :
+    def enleve(self, coord:tuple) -> None :
         try :
+            i,j = coord
             self.plateau[i][j] = 0
         except :
             pass
 
+    def est_un_voisin(self, indice1:tuple, indice2:tuple) -> bool :
+        if self.typePlateau == 1 :
+            try :
+                return indice2 in config.LiensPlateau1[indice1]
+            except :
+                return False
 
     def _MoulinLigne_(self) -> list:
 
