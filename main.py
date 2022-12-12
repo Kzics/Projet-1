@@ -6,6 +6,7 @@ from config import IntersectionsPlateau1 as Intersections
 import plateau
 import joueur
 
+
 class Jeton :
     def __init__(self, rayon:int, coord:tuple, joueur:str, couleur:str) -> None:
         self.couleur = couleur
@@ -35,6 +36,8 @@ def est_une_intersection(clicCoord:tuple) -> list:
 
     return [0]*2
 
+moulinDic = {}
+
 fltk.cree_fenetre(WEIGHT, HEIGHT)
 
 
@@ -49,9 +52,9 @@ fltk.ligne(300, 475, 555, 475, epaisseur=3)
 fltk.ligne(950, 475, 1200, 475, epaisseur=3)
 
 #creation des cercles dans les intersections
-for i in Intersections :
+for i in Intersections:
     for coord in i :
-        fltk.cercle(coord[0], coord[1], 10, remplissage="black")
+        fltk.cercle(1200, 100, 10, remplissage="black")
 
 
 jetonsJ1 = list()
@@ -71,6 +74,10 @@ j2 = joueur.Joueur(grille, "g")
 
 who = True
 phase = 1
+
+
+def checkTurn():
+    return "g" if not who else "b"
 
 while True :
 
@@ -135,10 +142,12 @@ while True :
                     j2.ajoute_jeton(indice2, jeton)
                     who = not who
 
-    """win = grille.Moulin()
+    win = grille.Moulin()
 
-    if win[0] != "Null" :
-        print(win)"""
+
+    if win[0] != "Null" and moulinDic.get(win[0]) == "Null":
+       moulinDic[win[0]] = win[1]
+
     
     if len(jetonsJ2) == 0 :
         pass
