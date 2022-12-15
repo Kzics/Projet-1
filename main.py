@@ -1,28 +1,11 @@
 import fltk
 
-from config import WEIGHT, HEIGHT
-from config import IntersectionsPlateau1 as Intersections
-
 import plateau
 import joueur
 
+from config import WEIGHT, HEIGHT
+from config import IntersectionsPlateau1 as Intersections
 
-class Jeton :
-    def __init__(self, rayon:int, coord:tuple, joueur:str, couleur:str) -> None:
-        self.couleur = couleur
-        self.rayon = rayon
-        self.x, self.y = coord
-        self.joueur = joueur
-
-        self.fltkobj = fltk.cercle(self.x, self.y, self.rayon, remplissage=self.couleur)
-    
-    def rafraichir(self) :
-        fltk.efface(self.fltkobj)
-        self.fltkobj = fltk.cercle(self.x, self.y, self.rayon, remplissage=self.couleur)
-
-    def deplace(self, coord:tuple) :
-        self.x, self.y = coord
-        self.rafraichir()
 
 def est_une_intersection(clicCoord:tuple) -> list:
     x,y = clicCoord
@@ -36,10 +19,8 @@ def est_une_intersection(clicCoord:tuple) -> list:
 
     return [0]*2
 
-moulinDic = {}
 
 fltk.cree_fenetre(WEIGHT, HEIGHT)
-
 
 fltk.rectangle(300, 100, 1200, 850, epaisseur=3, remplissage="#FFE0A9")
 fltk.rectangle(435, 210, 1070, 740, epaisseur=3)
@@ -54,35 +35,31 @@ fltk.ligne(950, 475, 1200, 475, epaisseur=3)
 #creation des cercles dans les intersections
 for i in Intersections:
     for coord in i :
-        fltk.cercle(1200, 100, 10, remplissage="black")
+        fltk.cercle(coord[0], coord[1],10, remplissage="black")
 
 
 jetonsJ1 = list()
 jetonsJ2 = list()
 
-for _ in range(9) :
-    jeton = Jeton(15, (1381, 467), "b", "blue")
+for _ in range(3) :
+    jeton = joueur.Jeton(15, (1381, 467), "blue")
     jetonsJ1.append(jeton)
 
-    jeton = Jeton(15, (100, 475), "g", "green")
+    jeton = joueur.Jeton(15, (100, 475), "green")
     jetonsJ2.append(jeton)
 
 grille = plateau.Plateau(1)
 
-j1 = joueur.Joueur(grille, "b")
-j2 = joueur.Joueur(grille, "g")
+j1 = joueur.Joueur(grille, 1)
+j2 = joueur.Joueur(grille, 2)
 
 who = True
 phase = 1
-
-
-def checkTurn():
-    return "g" if not who else "b"
+estMoulin = False
 
 while True :
 
-
-    if phase == 1 :
+    if phase == 1 and not estMoulin:
 
         coordClic = fltk.attend_clic_gauche()
         intersec = est_une_intersection(coordClic)
@@ -110,7 +87,7 @@ while True :
             if len(jetonsJ2) == 0 : 
                 phase = 2
 
-    if phase == 2 :
+    if phase == 2 and not estMoulin:
         coordClic1= fltk.attend_clic_gauche()
         coordClic2 = fltk.attend_clic_gauche()
 
@@ -125,7 +102,7 @@ while True :
         if intersec1[0] != 0 and intersec2[0] != 0 and estAdjacent:
 
             if who :
-                if grille.est_ce_joueur(indice1, j1.couleur) and grille.EstJouable(indice2):
+                if grille.est_ce_joueur(indice1, j1.numero) and grille.EstJouable(indice2):
                     jeton = j1.donne_jeton(indice1)
                     grille.enleve(indice1)
                     j1.joue(indice2)
@@ -134,7 +111,7 @@ while True :
                     who = not who
 
             else :
-                if grille.est_ce_joueur(indice1, j2.couleur) and grille.EstJouable(indice2):
+                if grille.est_ce_joueur(indice1, j2.numero) and grille.EstJouable(indice2):
                     jeton = j2.donne_jeton(indice1)
                     grille.enleve(indice1)
                     j2.joue(indice2)
@@ -142,16 +119,33 @@ while True :
                     j2.ajoute_jeton(indice2, jeton)
                     who = not who
 
+
     win = grille.Moulin()
 
+    if win[0] != "Null" :
+        _joueur = win[0]
+        grille.dejavu(win[1], _joueur)
+        estMoulin = True
 
-    if win[0] != "Null" and moulinDic.get(win[0]) == "Null":
-       moulinDic[win[0]] = win[1]
+    if estMoulin :
+        coordClic = fltk.attend_clic_gauche()
+        intersec = est_une_intersection(coordClic)
 
-    
-    if len(jetonsJ2) == 0 :
-        pass
+        if intersec[0] != 0 :
+            indice = intersec[1]
 
+            if _joueur == 1 :
+                if grille.est_ce_joueur(indice, 2) :
+                    j2.donne_jeton(indice).efface()
+                    grille.enleve(indice)
+                    estMoulin = False
+            
+            if _joueur == 2 :
+                 if grille.est_ce_joueur(indice, 1) :
+                    j1.donne_jeton(indice).efface()
+                    grille.enleve(indice)
+                    estMoulin = False
+            
+            grille.affiche()
+            
     fltk.mise_a_jour()
-
-

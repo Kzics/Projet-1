@@ -42,12 +42,12 @@ class Plateau :
 
     def est_ce_joueur(self, coord:tuple, joueur:str) -> bool :
         i,j = coord
-        if self.plateau[i][j] == joueur :
+        if abs(self.plateau[i][j]) == joueur :
             return True
         return False
     
-    def joue(self, i:int, j:int, joueur:str) -> None :
-
+    def joue(self, coord:tuple, joueur:str) -> None :
+        i,j = coord
         self.plateau[i][j] = joueur
         return True
 
@@ -66,22 +66,30 @@ class Plateau :
             except :
                 return False
 
+    def compare(self, a, b, c) -> int:
+        if (a == b == c ) and (a > 0 or b > 0 or c > 0) :
+            return abs(a)
+        else:
+            return 0
+
     def _MoulinLigne_(self) -> list:
 
         for ligne in range(len(self.plateau)) :
 
             if len(self.plateau[ligne]) == 3 :
-                if self.plateau[ligne][0] == self.plateau[ligne][1] == self.plateau[ligne][2] and self.plateau[ligne][0] !=0 :
-                        return [self.plateau[ligne][0],[ (ligne, 0), (ligne, 1), (ligne, 2)]]
+                joueur = self.compare(self.plateau[ligne][0], self.plateau[ligne][2], self.plateau[ligne][2])
+                if joueur :
+                    return [joueur,[ (ligne, 0), (ligne, 1), (ligne, 2)]]
             
             else :
                 if len(self.plateau[ligne]) == 6 :
-
-                    if self.plateau[ligne][0] == self.plateau[ligne][1] == self.plateau[ligne][2] and self.plateau[ligne][0] != 0:
-                        return [self.plateau[ligne][0],[ (ligne, 0), (ligne, 1), (ligne, 2)]]
-
-                    if self.plateau[ligne][3] == self.plateau[ligne][4] == self.plateau[ligne][5] and self.plateau[ligne][3] != 0:
-                        return [self.plateau[ligne][3], [(ligne, 3), (ligne, 4), (ligne, 5)]]
+                    joueur = self.compare(self.plateau[ligne][0], self.plateau[ligne][2], self.plateau[ligne][2])
+                    if joueur:
+                        return [joueur, [ (ligne, 0), (ligne, 1), (ligne, 2)]]
+                    
+                    joueur = self.compare(self.plateau[ligne][3], self.plateau[ligne][4], self.plateau[ligne][5])
+                    if joueur:
+                        return [joueur, [(ligne, 3), (ligne, 4), (ligne, 5)]]
 
         return ["Null"]
         
@@ -89,22 +97,27 @@ class Plateau :
     def _MoulinColonne_(self) -> list:
         if self.typePlateau == 3 :
             for j in range(3) :
-                if self.plateau[0][j] == self.plateau[1][j] == self.plateau[2][j] and self.plateau[0][j] != 0:
-                    return [self.plateau[0][j], (0,j), (1,j), (2,j)]
+                joueur = self.compare(self.plateau[0][j], self.plateau[1][j], self.plateau[2][j])
+                if joueur:
+                    return [joueur, [(0,j), (1,j), (2,j)]]
 
         elif self.typePlateau == 2 :
-
-            if self.plateau[0][0] == self.plateau[2][0] == self.plateau[4][0] and self.plateau[0][0] != 0:
-                return [self.plateau[0][0], (0,0), (2,0), (4,0)]
             
-            if self.plateau[1][0] == self.plateau[2][1] == self.plateau[3][0] and self.plateau[1][0] != 0:
-                return [self.plateau[1][0], (1,0), (2,1), (3,0)]
+            joueur = self.compare(self.plateau[0][0], self.plateau[2][0], self.plateau[4][0])
+            if joueur :
+                return [joueur, [(0,0), (2,0), (4,0)]]
             
-            if self.plateau[1][2] == self.plateau[2][2] == self.plateau[3][2] and self.plateau[1][2] != 0:
-                return [self.plateau[1][2], (1,2), (2,2), (3,2)]
+            joueur = self.compare(self.plateau[1][0], self.plateau[2][1], self.plateau[3][0])
+            if joueur:
+                return [joueur, [(1,0), (2,1), (3,0)]]
             
-            if self.plateau[0][2] == self.plateau[2][3] == self.plateau[4][2] and self.plateau[0][2] != 0:
-                return [self.plateau[0][2], (0,2), (2,3), (4,2)]
+            joueur = self.compare(self.plateau[1][2], self.plateau[2][2], self.plateau[3][2])
+            if joueur:
+                return [joueur, [(1,2), (2,2), (3,2)]]
+            
+            joueur = self.compare(self.plateau[0][2], self.plateau[2][3], self.plateau[4][2])
+            if joueur:
+                return [joueur, [(0,2), (2,3), (4,2)]]
 
         else :
             for coords in config.CoordMoulinColnnePlateau1 :
@@ -112,10 +125,9 @@ class Plateau :
                 for coord in coords :
                     tmp.append( self.plateau[coord[0]][coord[1]] )
                 
-                if tmp[0] == tmp[1] == tmp[2] and tmp[0] != 0:
-                    coords.insert(0, tmp[0])
-                    print(coords)
-                    return coords
+                joueur = self.compare(tmp[0], tmp[1], tmp[2])
+                if joueur:
+                    return [joueur, coords]
 
         return ["Null"]
 
@@ -123,16 +135,18 @@ class Plateau :
         ligne = self._MoulinLigne_()
 
         if ligne[0] != "Null" : 
-            print(ligne[0])
             return ligne
         else :
             colonne = self._MoulinColonne_()
             if colonne[0] != "Null" :
-                print(colonne[0])
                 return colonne
         
         return ["Null"]
 
+    def dejavu(self, indices:list, joueur:int) :
+        for i in indices :
+            self.joue(i, joueur*-1)
 
-    def donne_stat(self) :
+    def affiche(self) :
         pprint(self.plateau)
+        print("\n")
