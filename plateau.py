@@ -66,7 +66,7 @@ class Plateau :
             except :
                 return False
 
-    def compare(self, a, b, c) -> int:
+    def compare(self, a:int, b:int, c:int) -> int:
         if (a == b == c ) and (a > 0 or b > 0 or c > 0) :
             return abs(a)
         else:
@@ -77,13 +77,13 @@ class Plateau :
         for ligne in range(len(self.plateau)) :
 
             if len(self.plateau[ligne]) == 3 :
-                joueur = self.compare(self.plateau[ligne][0], self.plateau[ligne][2], self.plateau[ligne][2])
+                joueur = self.compare(self.plateau[ligne][0], self.plateau[ligne][1], self.plateau[ligne][2])
                 if joueur :
                     return [joueur,[ (ligne, 0), (ligne, 1), (ligne, 2)]]
             
             else :
                 if len(self.plateau[ligne]) == 6 :
-                    joueur = self.compare(self.plateau[ligne][0], self.plateau[ligne][2], self.plateau[ligne][2])
+                    joueur = self.compare(self.plateau[ligne][0], self.plateau[ligne][1], self.plateau[ligne][2])
                     if joueur:
                         return [joueur, [ (ligne, 0), (ligne, 1), (ligne, 2)]]
                     

@@ -41,7 +41,7 @@ for i in Intersections:
 jetonsJ1 = list()
 jetonsJ2 = list()
 
-for _ in range(3) :
+for _ in range(5) :
     jeton = joueur.Jeton(15, (1381, 467), "blue")
     jetonsJ1.append(jeton)
 
@@ -146,6 +146,5 @@ while True :
                     grille.enleve(indice)
                     estMoulin = False
             
-            grille.affiche()
             
     fltk.mise_a_jour()
