@@ -1,4 +1,3 @@
-from pprint import pprint
 import fltk
 
 class Joueur :
@@ -12,18 +11,33 @@ class Joueur :
 
         self.couleur = couleur
 
-        self.estMaster = False
+        self.saut = False
 
     def joue(self, coord:tuple):
         self.plateau.joue(coord, self.numero)
 
     def ajoute_jeton(self, indice:tuple, jeton) :
         self.Jeton[indice] = jeton
-        self.nbJeton += 1
     
     def donne_jeton(self, indice:tuple) :
+        return self.Jeton.pop(indice)
+
+    def enleve_jeton(self, indice:tuple) :
         self.nbJeton -= 1
         return self.Jeton.pop(indice)
+
+    def estbloqué(self) -> bool :
+        mesPostions = self.Jeton.keys()
+
+        for indice in mesPostions :
+            voisins = self.plateau.Liens[indice]
+
+            for coord in voisins :
+                if self.plateau.EstJouable(coord) :
+                    return False
+
+        return True and not self.saut
+
 
 class Jeton :
     def __init__(self, rayon:int, coord:tuple, couleur:str, numero:int) -> None:
@@ -39,7 +53,9 @@ class Jeton :
         fltk.efface(self.fltkobj)
         fltk.efface(self.fltknumero)
         self.fltkobj = fltk.cercle(self.x, self.y, self.rayon, remplissage=self.couleur, couleur=self.couleur)
-        
+
+    def effacenum(self) :
+        fltk.efface(self.fltknumero)
 
     def deplace(self, coord:tuple) :
         self.x, self.y = coord

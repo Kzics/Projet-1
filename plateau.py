@@ -1,5 +1,6 @@
-import config
 from pprint import pprint
+
+import config
 
 class Plateau :
 
@@ -29,6 +30,12 @@ class Plateau :
             
         return grille
 
+    def est_un_voisin(self, indice1:tuple, indice2:tuple) -> bool :
+        try :
+            return indice2 in self.Liens[indice1]
+        except :
+            return False
+
 
     def EstJouable(self, coord:tuple) -> bool :
         i,j = coord
@@ -37,9 +44,9 @@ class Plateau :
 
         return False
 
-    def est_ce_joueur(self, coord:tuple, joueur:str) -> bool :
+    def est_ce_joueur(self, coord:tuple, joueur:int) -> bool :
         i,j = coord
-        if abs(self.plateau[i][j]) == joueur :
+        if self.plateau[i][j] == joueur :
             return True
         return False
     
@@ -89,19 +96,14 @@ class Plateau_1(Plateau) :
     #      |       |           |           |     |
     #      |      (5,0)------(5,1)-------(5,2)   |
     #      |                   |                 |
-    #     (6,0)--------------(6,1)-------------(6,2)               
+    #     (6,0)--------------(6,1)-------------(6,2)
     
 
     def __init__(self) -> None :
         super().__init__(1)
         self.Type = 1
         self.nombreJeton = 9
-    
-    def est_un_voisin(self, indice1:tuple, indice2:tuple) -> bool :
-        try :
-            return indice2 in config.LiensPlateau1[indice1]
-        except :
-            return False
+        self.Liens = config.LiensPlateau1
 
 
     def _moulin_ligne_(self, indice:tuple) -> list:
@@ -138,7 +140,7 @@ class Plateau_1(Plateau) :
                 return ["Null"]
             
         # Verifier la moulin dans les lignes veritcales de 1er carré (indice [0,0]).
-        if i%3 == 0 and j == 0 or (j in [2,5] and j+1 != i) :
+        if i%3 == 0 and (j == 0 or (j in [2,5] and j+1 != i)) :
 
             if j == 0 : # ligne de gauche
                 z = (0,)*3
@@ -151,37 +153,37 @@ class Plateau_1(Plateau) :
             
             joueur = self.compare(self.plateau[0][z[0]], self.plateau[3][z[1]], self.plateau[6][z[2]])
             if joueur :
-                return [joueur, (0, (z[0]), (3, z[1]), (6, z[2]))]
+                return [joueur, ( (0,z[0]), (3, z[1]), (6, z[2]) )]
             else :
                 return ["Null"]
         
 
         # Verifier la moulin dans les lignes veritcales de 2eme carré (indice [1,0]).
-        if i%2 == 1 and j in [0,1] or (j in [2,4] and j+1 != i):
+        if i%2 == 1 and (j in [0,1] or (j in [2,4] and j+1 != i)):
 
             if j in [0,1] :
                 z = (0,1,0)
 
             elif j in [2,4] :
                 z = (2,4,2)
+            
 
             else :
                 pass
             
             joueur = self.compare(self.plateau[1][z[0]], self.plateau[3][z[1]], self.plateau[5][z[2]])
             if joueur :
-                return [joueur, (1, (z[0]), (3, z[1]), (5, z[2]))]
+                return [joueur, ( (1,z[0]), (3, z[1]), (5, z[2]) )]
             else :
                 return ["Null"]
-
 
         # Verifier la moulin dans les lignes veritcales de 3eme carré (indice [2,0])
         if i in [2,3,4] :
 
-            if j in [0,2] :
+            if j == 0 or (j == 2 and i == 3) : #ligne gauche
                 z = (0,2,0)
 
-            elif j in [2,3]:
+            elif j in [2,3]: #line droite
                 z = (2,3,2)
             
             else :
@@ -227,12 +229,7 @@ class Plateau_2(Plateau) :
         super().__init__(2)
         self.Type = 2
         self.nombreJeton = 6
-
-    def est_un_voisin(self, indice1:tuple, indice2:tuple) -> bool :
-        try :
-            return indice2 in config.LiensPlateau2[indice1]
-        except :
-            return False
+        self.Liens = config.LiensPlateau2
 
     def _moulin_ligne_(self, indice:tuple) -> list :
         i, j = indice
@@ -309,12 +306,7 @@ class Plateau_3(Plateau) :
         super().__init__(3)
         self.Type = 3
         self.nombreJeton = 3
-    
-    def est_un_voisin(self, indice1:tuple, indice2:tuple) -> bool :
-        try :
-            return indice2 in config.LiensPlateau3[indice1]
-        except :
-            return False
+        self.Liens = config.LiensPlateau3
 
     def _moulin_ligne_(self, indice:tuple) -> list:
         i,j = indice
@@ -336,6 +328,13 @@ class Plateau_3(Plateau) :
     
     def _moulin_diagonalle_(self, indice:tuple) -> list :
         i,j = indice
+
+        if i == j == 1 :
+            a, b, c = self.plateau[0][2], self.plateau[i][j], self.plateau[2][0]
+            joueur = self.compare(a,b,c)
+            if joueur :
+                return [joueur, ((0,2), (i,j), (2,0))]
+
         if i == j :
             a, b, c = self.plateau[i][j], self.plateau[(i+1)%3][(j+1)%3], self.plateau[(i+2)%3][(j+2)%3]
             joueur = self.compare(a, b, c)
@@ -366,8 +365,68 @@ class Plateau_3(Plateau) :
         return ["Null"]
 
 
+class Plateau_4(Plateau_1) :
+
+    #     (0,0)--------------(0,1)-------------(0,2)
+    #      |    \               |             /  |
+    #      |     (1,0)-------(1,1)-------(1,2)   |
+    #      |       |  \        |        /  |     |
+    #      |       |  (2,0)--(2,1)--(2,2)  |     |
+    #      |       |    |             |    |     |
+    #      |       |    |             |    |     |
+    #    (3,0)--(3,1)--(3,2)       (3,3)--(3,4)--(3,5)
+    #      |       |    |             |    |     |
+    #      |       |    |             |    |     |
+    #      |       |  (4,0)--(4,1)--(4,2)  |     |
+    #      |       |  /        |        \  |     |
+    #      |      (5,0)------(5,1)-------(5,2)   |
+    #      |    /              |             \   |
+    #     (6,0)--------------(6,1)-------------(6,2)
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.Type = 4
+        self.nombreJeton = 12
+        self.Liens = config.LiensPlateau4
+
+    def _moulin_diagonalle_(self, indice:tuple) -> list :
+        i, j = indice
+
+        if not ( j == 0 or j == 2) :
+            return ["Null"]
+
+        if i <= 2 :
+            a,b,c = self.plateau[0][j], self.plateau[1][j], self.plateau[2][j]
+            joueur = self.compare(a,b,c)
+            if joueur :
+                return [joueur, ((0,j), (1,j), (2,j))]
+        else :
+            a,b,c = self.plateau[4][j], self.plateau[5][j], self.plateau[6][j]
+            joueur = self.compare(a,b,c)
+            if joueur :
+                return [joueur, ((4,j), (5,j), (6,j))]
+
+        return ["Null"]
+
+    def moulin(self, indice:tuple) -> list :
+        ligne = self._moulin_ligne_(indice)
+        if ligne[0] != "Null" :
+            return ligne
+        
+        colonne = self._moulin_colonne_(indice)
+        if colonne[0] != "Null" :
+            return colonne
+        
+        diagonalle = self._moulin_diagonalle_(indice)
+        if diagonalle[0] != "Null" :
+            return diagonalle
+        
+        return ["Null"]
+
 def creerPlateau(Type:int) :
-    if Type == 3 :
+    if Type == 4 :
+        return Plateau_4()
+    elif Type == 3 :
         return Plateau_3()
     elif Type == 2 :
         return Plateau_2()

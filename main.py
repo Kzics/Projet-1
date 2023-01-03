@@ -1,11 +1,12 @@
-import fltk
+import sys
 
+import fltk
 import joueur
 import interface
 import config
+import parsing
 
 from plateau import creerPlateau
-
 
 def est_une_intersection(clicCoord:tuple) -> list:
     x,y = clicCoord
@@ -20,10 +21,9 @@ def est_une_intersection(clicCoord:tuple) -> list:
     return [0]*2
 
 
-def Phase1() :
+def Phase1(coordClic) :
     global who, phase
 
-    coordClic = fltk.attend_clic_gauche()
     intersection = est_une_intersection(coordClic)
     coordFenetre, indiceGrille = intersection
 
@@ -53,33 +53,34 @@ def Phase1() :
 
     return 0
 
-def Phase2() :
+def PhaseFinale(coordClic1) :
     global who
 
-    coordClic1 = fltk.attend_clic_gauche()
-    intersection = est_une_intersection(coordClic1)
+    intersection:list = est_une_intersection(coordClic1)
     coordFenetre, indiceGrille = intersection
 
     coordClic2 = fltk.attend_clic_gauche()
-    intersection2 = est_une_intersection(coordClic2)
-    indice2 = intersection2[1]
+    intersection2:list = est_une_intersection(coordClic2)
+    indice2:tuple = intersection2[1]
 
+    #verification pour phase 3
     if who :
-        if j1.estMaster : 
+        if j1.saut: 
             estUnVoisin = True
         else :
-            estUnVoisin = grille.est_un_voisin(indiceGrille, indice2)
+            estUnVoisin:bool = grille.est_un_voisin(indiceGrille, indice2)
 
     else :
-        if j2.estMaster : 
+        if j2.saut: 
             estUnVoisin = True
         else :
-            estUnVoisin = grille.est_un_voisin(indiceGrille, indice2)
+            estUnVoisin:bool = grille.est_un_voisin(indiceGrille, indice2)
     
 
     if coordFenetre != 0 and intersection2[0] != 0 and estUnVoisin:
 
         if who :
+
             if grille.est_ce_joueur(indiceGrille, j1.numero) and grille.EstJouable(indice2):
                 grille.enleve(indiceGrille)
 
@@ -91,7 +92,10 @@ def Phase2() :
 
                 who = not who
 
+                return indice2
+
         else :
+
             if grille.est_ce_joueur(indiceGrille, j2.numero) and grille.EstJouable(indice2):
                 grille.enleve(indiceGrille)
 
@@ -103,35 +107,49 @@ def Phase2() :
 
                 who = not who
     
-        return indice2
+                return indice2
     
     return 0
 
-def Phase3() :
-    pass
 
-def enleve_jeton_adversaire(joueur) :
+def enleve_jeton_adversaire(joueur:int) -> None :
     global estMoulin
 
     coordClic = fltk.attend_clic_gauche()
-    intersection = est_une_intersection(coordClic)
+    intersection:list = est_une_intersection(coordClic)
 
     if intersection[0] != 0 :
-        indice = intersection[1]
+        indice:tuple = intersection[1]
 
-        if joueur == 1 :
+        if joueur == j1.numero :
             if grille.est_ce_joueur(indice, j2.numero) :
-                j2.donne_jeton(indice).efface()
+                j2.enleve_jeton(indice).efface()
                 grille.enleve(indice)
                 estMoulin = False
         
-        if joueur == 2 :
+        if joueur == j2.numero :
                 if grille.est_ce_joueur(indice, j1.numero) :
-                    j1.donne_jeton(indice).efface()
+                    j1.enleve_jeton(indice).efface()
                     grille.enleve(indice)
                     estMoulin = False
 
-def afficheMoulin(qui:int) :
+
+def verifie_fin_du_partie() -> int :
+    joueurGagné = 0
+
+    if j1.nbJeton <= 2 or  (phase == 2 and j1.estbloqué()):
+        joueurGagné = 2
+
+    if j2.nbJeton <= 2 or (phase == 2 and j2.estbloqué()):
+        joueurGagné = 1
+    
+    if joueurGagné :
+        fltk.texte(580, 20, f"Fin du Partie Joueur {joueurGagné} Gagné", couleur=color, tag="afficheMoulin")
+
+    return joueurGagné
+
+
+def afficheMoulin(qui:int) -> None:
     if qui == 1 :
         color = j1.couleur
     else :
@@ -139,15 +157,23 @@ def afficheMoulin(qui:int) :
 
     fltk.texte(610, 20, f"Moulin pour Joueur : {qui}", couleur=color, tag="afficheMoulin")
 
-
 fltk.cree_fenetre(config.WEIGHT, config.HEIGHT)
-fltk.rectangle(0, 0, config.WEIGHT, config.HEIGHT, remplissage="#086398")
+
+userconfig = parsing.parse(sys.argv)
+isImported = userconfig["imported"]
+
+partie = userconfig["partie"] if isImported else 0
+
+remcolor =  partie.color if isImported else userconfig["color"]
+typePlateau:int = partie.TypePlateau if isImported else userconfig["TypePlateau"]
+
+interface.Intro(remcolor)
+
+fltk.rectangle(0, 0, config.WEIGHT, config.HEIGHT, remplissage=remcolor)
 color = "#faf9f7"
 
-typePlateau:int = 1
 
 if typePlateau == 2 :
-
     Intersections_ = config.IntersectionsPlateau2
     interface.plateau_2(color)
 
@@ -156,7 +182,7 @@ elif typePlateau == 3 :
     interface.plateau_3(color)
 
 elif typePlateau == 4:
-    Intersections_ = config.IntersectionsPlateau4
+    Intersections_ = config.IntersectionsPlateau1
     interface.plateau_4(color)
 
 else :
@@ -168,79 +194,103 @@ else :
 for i in Intersections_:
     for coord in i :
         fltk.cercle(coord[0], coord[1],10, remplissage=color, couleur="white")
-        fltk.cercle(coord[0], coord[1],7, remplissage="#086398", couleur="#086398")
-
-grille = creerPlateau(typePlateau)
-
-jetonsJ1 = list()
-jetonsJ2 = list()
-
-nombreDeJeton = grille.nombreJeton
-
-j1 = joueur.Joueur(grille, 1, nombreDeJeton, "#4dfa41")
-j2 = joueur.Joueur(grille, 2, nombreDeJeton, "#ffd414")
-
-numeroJeton = 1
-
-for _ in range(nombreDeJeton) :
-    jeton = joueur.Jeton(17, (1381, 467), j1.couleur, numeroJeton)
-    jetonsJ1.append(jeton)
-
-    jeton = joueur.Jeton(17, (100, 475), j2.couleur, numeroJeton)
-    jetonsJ2.append(jeton)
-    
-    numeroJeton += 1
 
 
-who = True
-phase = 1
+grille = partie.grille if isImported else creerPlateau(typePlateau)
+
+jetonsJ1 = partie.jetonJ1() if isImported else list()
+jetonsJ2 = partie.jetonJ2() if isImported else list()
+
+nombreDeJeton:int = grille.nombreJeton
+
+j1 = partie.joueur1() if isImported else joueur.Joueur(grille, 1, nombreDeJeton, "#4dfa41")
+j2 = partie.joueur2() if isImported else joueur.Joueur(grille, 2, nombreDeJeton, "#ffd414")
+
+if not isImported : 
+    numeroJeton = 1
+    for _ in range(nombreDeJeton) :
+        jeton = joueur.Jeton(17, (1381, 467), j1.couleur, numeroJeton)
+        jetonsJ1.append(jeton)
+
+        jeton = joueur.Jeton(17, (100, 475), j2.couleur, numeroJeton)
+        jetonsJ2.append(jeton)
+        
+        numeroJeton += 1
+
+
+who = partie.qui if isImported else True
+phase = partie.phase if isImported else 1
 estMoulin = False
 
 
-while True :
+while True:
 
-    if who :
-        fltk.texte(10, 10, "Tour : Joueur 1", taille=20, tag="tour", couleur=j1.couleur)
+    fltk.mise_a_jour()
+
+    if not estMoulin :
+        if who :
+            fltk.texte(10, 10, "Tour : Joueur 1", taille=20, tag="tour", couleur=j1.couleur)
+        else :
+            fltk.texte(10, 10, "Tour : Joueur 2", taille=20, tag="tour", couleur=j2.couleur)
+
+    evenement = fltk.attend_ev()
+    typeEvenement = fltk.type_ev(evenement)
+
+    if typeEvenement == "Quitte" :
+        fltk.ferme_fenetre()
+        break
+
+    elif typeEvenement == "ClicGauche" :
+        coorClic = (fltk.abscisse(evenement), fltk.ordonnee(evenement))
+
+    elif fltk.touche(evenement) == "s" :
+        parsing.Sauvegarder(plateau=grille, joueur1=j1, joueur2=j2, phase=phase, 
+                    who = who, jetonJ1=jetonsJ1, jetonJ2=jetonsJ2, userConfig=userconfig)
+
     else :
-        fltk.texte(10, 10, "Tour : Joueur 2", taille=20, tag="tour", couleur=j2.couleur)
+        fltk.efface("tour")
+        continue
+
 
     if phase == 1 and not estMoulin:
-        dernierClicIndice = Phase1()
-
+        dernierClicIndice = Phase1(coorClic)
     elif phase == 2 and not estMoulin:
-        dernierClicIndice = Phase2()
+        dernierClicIndice = PhaseFinale(coorClic)
+
 
     if dernierClicIndice != 0 and not estMoulin:
-        moulin = grille.moulin(dernierClicIndice)
-
+        moulin:list = grille.moulin(dernierClicIndice)
     else :
         moulin = ["Null"]
 
 
     if moulin[0] != "Null" :
-        print(moulin)
-        _joueur = moulin[0]
+        _joueur:int = moulin[0]
         estMoulin = True
-        afficheMoulin(_joueur)
 
     if estMoulin :
+        afficheMoulin(_joueur)
         enleve_jeton_adversaire(_joueur)
+
+    if not estMoulin :    
         fltk.efface("afficheMoulin")
 
-    if typePlateau != 3 :
-        if j1.nbJeton == 3 :
-            j1.estMaster = True
+    if typePlateau not in (2,3) and j1.nbJeton == 3 :
+        j1.saut = True
+        print('Joueur 1 saut activé') 
+    if typePlateau not in (2,3) and j2.nbJeton == 3 :
+        j2.saut = True
+        print('Joueur 2 saut activé') 
 
-        if j2.nbJeton == 3 :
-            j2.estMaster = True
-
-    if j1.nbJeton <= 2 :
-        print("Joueur 2 gagné")
+    if verifie_fin_du_partie() :
         break
-
-    if j2.nbJeton <= 2 :
-        print("Joueur 1 gagné") 
-        break
-
-    fltk.mise_a_jour()
+    
     fltk.efface("tour")
+    fltk.mise_a_jour()
+
+    debug = True
+
+try :
+    fltk.attend_ev()
+except :
+    pass
