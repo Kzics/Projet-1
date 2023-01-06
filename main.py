@@ -9,6 +9,21 @@ import parsing
 from plateau import creerPlateau
 
 def est_une_intersection(clicCoord:tuple) -> list:
+    
+    """
+    Permet de verifier si user a appuyé dans une point (intersection)
+    Si oui, alors renvoie list avec coord (x, y) en pixel et indice correspond a ce pixels.
+    Si non renvoie [0,0].
+
+    Exemple :
+    
+    >>> est_une_intersection((500,600))
+    [(500,600), (1,2)]
+
+    >>> est_une_intersection((100,200))
+    [0, 0]
+    """
+
     x,y = clicCoord
 
     for i in range(len(Intersections_)) :
@@ -21,16 +36,16 @@ def est_une_intersection(clicCoord:tuple) -> list:
     return [0]*2
 
 
-def Phase1(coordClic) :
+def Phase1(coordClic:tuple) -> tuple | int :
     global who, phase
 
-    intersection = est_une_intersection(coordClic)
+    intersection:list = est_une_intersection(coordClic)
     coordFenetre, indiceGrille = intersection
 
     if coordFenetre != 0 and grille.EstJouable(indiceGrille):
 
         if who :
-            jeton = jetonsJ1.pop()
+            jeton:joueur.Jeton = jetonsJ1.pop()
 
             j1.joue(indiceGrille)
             jeton.deplace(coordFenetre)
@@ -38,7 +53,7 @@ def Phase1(coordClic) :
 
         else :
             
-            jeton = jetonsJ2.pop()
+            jeton:joueur.Jeton = jetonsJ2.pop()
 
             j2.joue(indiceGrille)
             jeton.deplace(coordFenetre)
@@ -53,7 +68,7 @@ def Phase1(coordClic) :
 
     return 0
 
-def PhaseFinale(coordClic1) :
+def PhaseFinale(coordClic1:tuple) -> tuple | int :
     global who
 
     intersection:list = est_une_intersection(coordClic1)
@@ -151,23 +166,23 @@ def verifie_fin_du_partie() -> int :
 
 def afficheMoulin(qui:int) -> None:
     if qui == 1 :
-        color = j1.couleur
+        color:str = j1.couleur
     else :
-        color = j2.couleur
+        color:str = j2.couleur
 
     fltk.texte(610, 20, f"Moulin pour Joueur : {qui}", couleur=color, tag="afficheMoulin")
 
 fltk.cree_fenetre(config.WEIGHT, config.HEIGHT)
 
-userconfig = parsing.parse(sys.argv)
-isImported = userconfig["imported"]
+userconfig:dict = parsing.parse(sys.argv)
+isImported:bool = userconfig["imported"] #indique si la partie est chargé ou creer nouveau
 
-partie = userconfig["partie"] if isImported else 0
+partie:parsing.chargerPartie = userconfig["partie"] if isImported else 0
 
-remcolor =  partie.color if isImported else userconfig["color"]
+remcolor:str =  partie.color if isImported else userconfig["color"]
 typePlateau:int = partie.TypePlateau if isImported else userconfig["TypePlateau"]
 
-interface.Intro(remcolor)
+#interface.Intro(remcolor)
 
 fltk.rectangle(0, 0, config.WEIGHT, config.HEIGHT, remplissage=remcolor)
 color = "#faf9f7"
@@ -203,8 +218,8 @@ jetonsJ2 = partie.jetonJ2() if isImported else list()
 
 nombreDeJeton:int = grille.nombreJeton
 
-j1 = partie.joueur1() if isImported else joueur.Joueur(grille, 1, nombreDeJeton, "#4dfa41")
-j2 = partie.joueur2() if isImported else joueur.Joueur(grille, 2, nombreDeJeton, "#ffd414")
+j1:joueur.Joueur = partie.joueur1() if isImported else joueur.Joueur(grille, 1, nombreDeJeton, "#4dfa41")
+j2:joueur.Joueur = partie.joueur2() if isImported else joueur.Joueur(grille, 2, nombreDeJeton, "#ffd414")
 
 if not isImported : 
     numeroJeton = 1
@@ -218,10 +233,11 @@ if not isImported :
         numeroJeton += 1
 
 
-who = partie.qui if isImported else True
-phase = partie.phase if isImported else 1
+who:bool = partie.qui if isImported else True
+phase:int = partie.phase if isImported else 1
 estMoulin = False
 
+fltk.texte(10, 10, "Tour : Joueur 1", taille=20, tag="tour", couleur=j1.couleur)
 
 while True:
 
@@ -232,6 +248,8 @@ while True:
             fltk.texte(10, 10, "Tour : Joueur 1", taille=20, tag="tour", couleur=j1.couleur)
         else :
             fltk.texte(10, 10, "Tour : Joueur 2", taille=20, tag="tour", couleur=j2.couleur)
+        
+
 
     evenement = fltk.attend_ev()
     typeEvenement = fltk.type_ev(evenement)
@@ -287,8 +305,6 @@ while True:
     
     fltk.efface("tour")
     fltk.mise_a_jour()
-
-    debug = True
 
 try :
     fltk.attend_ev()

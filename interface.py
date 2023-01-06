@@ -64,6 +64,7 @@ class Intro :
 
         Intro.PlateauAnimation()
         Intro.Animation(rgb)
+        fltk.texte(20, 920, "APPUYER POUR CONTINUER", couleur="white")
 
         fltk.attend_ev()
         fltk.efface_tout()
@@ -174,18 +175,3 @@ class Intro :
 
             fltk.mise_a_jour()
             count += 2
-
-
-# while True:
-#     ev = donne_ev()
-#     tev = type_ev(ev)
-    
-#     if tev == "ClicGauche":
-#         print("Clic gauche au point", (abscisse(ev), ordonnee(ev)))
-    
-#     elif tev == 'Quitte':  # on sort de la boucle
-#         break
-
-#     mise_a_jour()
-
-# ferme_fenetre()

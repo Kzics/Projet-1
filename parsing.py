@@ -8,7 +8,8 @@ from plateau import creerPlateau
 
 
 def parse(args) -> dict :
-    # nombre de jeton, theme
+    #main.py [nombre de jeton] [theme]
+    
     jeuconfig = dict()
 
     if len(args) == 1 :
@@ -16,6 +17,23 @@ def parse(args) -> dict :
         jeuconfig["color"] = "#086398"
         jeuconfig["imported"] = False
         return jeuconfig
+    
+    if args[1] == "help" :
+        helptxt = """
+        usage : main.py [nombre de pion] [theme]
+
+        nombre de pion : 3, 6, 9 et 12.
+        theme : standard ou dark.
+
+        Par defaut :
+            nomnbre de pion : 9
+            theme : standard
+        
+        Sauvergarder la partie :
+            appuyer [s] pendant la jeu, puis saisir la nom du fichier.
+        """
+
+        print(helptxt)
     
     if isfile(args[1]) :
 
@@ -60,6 +78,34 @@ def parse(args) -> dict :
 
 
 class Sauvegarder :
+
+    """
+    class permet de sauvegrader la partie dans un fichier JSON.
+
+    Attributs
+    ---------
+    plateau: object plateau
+    joueur1 : object joueur.joueur de joueur 1.
+    joueur2 : object joueur.joueur de joueur 2.
+    phase (int): phase de la partie.
+    who (int): indique la tour de qui.
+    jetonJ1 : objects joueur.jeton de joueur 1.
+    jetonJ2 : objects joueur.jeton de joueur 2.
+
+    Methodes
+    --------
+    demande_nom_fichier() :
+        demander nom de fichier à user par terminale pour sauvegarder la partie.
+
+    plateau(grille) :
+        transforme les information de class plateau en dico.
+    
+    joueur(j1, j2) :
+        transforme les information de class joueur (joueur 1 et 2) en dico.
+    
+    jetonsList(j1, j2) :
+        transforme les information de class jeton (joueur 1 et 2) en list.
+    """
     
     def __new__(cls, plateau, joueur1, joueur2, phase, who, jetonJ1, jetonJ2, userConfig) :
 
@@ -154,17 +200,22 @@ class Sauvegarder :
 
 class chargerPartie :
 
-    def __init__(self, fichier) :
+    """
+    class permet de charger la partie sauvegarder dans fichier JSON.
+
+    """
+
+    def __init__(self, fichier:str) :
 
         with open(fichier, "r") as file :
             self.data = load(file)
 
         try :
             self.grille = self.plateau(self.data["plateau"])
-            self.phase = self.data["phase"]
-            self.qui = self.data["qui"]
-            self.color = self.data["color"]
-            self.TypePlateau = self.data["TypePlateau"]
+            self.phase:int = self.data["phase"]
+            self.qui:bool = self.data["qui"]
+            self.color:str = self.data["color"]
+            self.TypePlateau:int = self.data["TypePlateau"]
 
         except :
             print("Fichier corrompu")

@@ -4,6 +4,31 @@ import config
 
 class Plateau :
 
+    """
+    Methodes
+    --------
+    creeer_plateau(Type) :
+        Creer un liste de liste qui renvoie à plateau correspond.
+    
+    est_un_voisin(indice1, indice2) :
+        Renvoie True si indice2 est un voisin d'indice1.
+    
+    EstJouable(indice) :
+        Renvoie True si l'indice corrspond est une place disponible (0) pour déplacer le pion.
+    
+    est_ce_joueur(indice, joueur) :
+        Renvoie True si joueur est présent dans cette indice.
+    
+    joue(indice, joueur) :
+        Remplace la valeur de plateau dans cette indice par joueur.
+    
+    enleve(indice) :
+        Enleve la joueur dans cette indice.
+    
+    compare(a, b, c) :
+        Verifier si a == b == c.
+    """
+
     def __init__(self, typePlateau) -> None :
         self.plateau = self.creer_plateau(typePlateau)
 
@@ -37,28 +62,28 @@ class Plateau :
             return False
 
 
-    def EstJouable(self, coord:tuple) -> bool :
-        i,j = coord
+    def EstJouable(self, indice:tuple) -> bool :
+        i,j = indice
         if self.plateau[i][j] == 0 :
             return True
 
         return False
 
-    def est_ce_joueur(self, coord:tuple, joueur:int) -> bool :
-        i,j = coord
+    def est_ce_joueur(self, indice:tuple, joueur:int) -> bool :
+        i,j = indice
         if self.plateau[i][j] == joueur :
             return True
         return False
     
-    def joue(self, coord:tuple, joueur:str) -> None :
-        i,j = coord
+    def joue(self, indice:tuple, joueur:str) -> None :
+        i,j = indice
         self.plateau[i][j] = joueur
         return True
 
 
-    def enleve(self, coord:tuple) -> None :
+    def enleve(self, indice:tuple) -> None :
         try :
-            i,j = coord
+            i,j = indice
             self.plateau[i][j] = 0
         except :
             pass
@@ -69,9 +94,6 @@ class Plateau :
         else :
             return 0
 
-    def dejavu(self, indices:list, joueur:int) :
-        for i in indices :
-            self.joue(i, joueur*-1)
 
     def affiche(self) :
         pprint(self.plateau)
@@ -107,6 +129,16 @@ class Plateau_1(Plateau) :
 
 
     def _moulin_ligne_(self, indice:tuple) -> list:
+
+        """
+        Arguments :
+            indice (tuple) : derniere positions (indice) clicker par joueur.
+        
+        Renvoie (list) :
+            si moulin formé horizontale, renvoie coord de l'écran (x,y) et un liste qui contient les indices formé,
+            sinon renvoie liste ["Null"].
+        """
+
         i, j = indice
         ligne = self.plateau[i]
 
@@ -122,6 +154,16 @@ class Plateau_1(Plateau) :
 
 
     def _moulin_colonne_(self, indice:tuple) -> list :
+
+        """
+        Arguments :
+            indice (tuple) : derniere positions (indice) clicker par joueur.
+        
+        Renvoie (list) :
+            si moulin formé verticale, renvoie coord de l'écran (x,y) et un liste qui contient les indices formé,
+            sinon renvoie liste ["Null"].
+        """
+
         i, j = indice
         z = None
 
@@ -197,6 +239,13 @@ class Plateau_1(Plateau) :
             
 
     def moulin(self, indice:tuple) -> list:
+
+        """
+        Regroupe moulin_ligne et moulin_colonne.
+        Argument :
+            indice (tuple) : derniere positions (indice) clicker par joueur.
+        """
+
         ligne = self._moulin_ligne_(indice)
         if ligne[0] != "Null" :
             return ligne
